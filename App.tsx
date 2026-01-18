@@ -3,10 +3,29 @@ import { Sidebar } from './components/Sidebar';
 import { PageOne } from './components/PageOne';
 import { PageTwo } from './components/PageTwo';
 import { GalleryPage } from './components/PageThree';
-import { ThemeType, BrandColor, SpecSection, GalleryImage, HeroImageState } from './types';
+import { ThemeType, BrandColor, SpecSection, GalleryImage, HeroImageState, PageOneText, PageTwoText } from './types';
 
 // LocalStorage key for auto-save
 const STORAGE_KEY = 'harvester-datasheet-data';
+
+// Default Text Content
+const DEFAULT_PAGE_ONE_TEXT: PageOneText = {
+  seriesTitle: 'X-2000 SERIES',
+  mainTitle: 'INDUSTRIAL HARVESTER',
+  modelYear: 'MODEL YEAR 2025',
+  introHeading: 'Вступ',
+  introText: 'Ця машина являє собою вершину інженерної думки в галузі лісозаготівлі. Розроблена для забезпечення максимальної ефективності та надійності, вона поєднує в собі потужність передових технологій та ергономіку нового покоління. Ідеальне рішення для найскладніших завдань.',
+  feature1Title: 'ЕФЕКТИВНІСТЬ',
+  feature1Text: 'Зниження витрат палива на 15% завдяки новій гідравліці.',
+  feature2Title: 'НАДІЙНІСТЬ',
+  feature2Text: 'Посилена рама та компоненти для роботи 24/7.',
+  feature3Title: 'КОМФОРТ',
+  feature3Text: 'Кабіна з оглядом 360° та системою клімат-контролю.'
+};
+
+const DEFAULT_PAGE_TWO_TEXT: PageTwoText = {
+  datasheet: 'DATASHEET 2.0'
+};
 
 // Default Data
 const DEFAULT_SPECS: SpecSection[] = [
@@ -105,8 +124,21 @@ const App: React.FC = () => {
           scale: 1
       }))
   );
+
+  // Text Content State
+  const [pageOneText, setPageOneText] = useState<PageOneText>(savedData.pageOneText || DEFAULT_PAGE_ONE_TEXT);
+  const [pageTwoText, setPageTwoText] = useState<PageTwoText>(savedData.pageTwoText || DEFAULT_PAGE_TWO_TEXT);
   
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Text update handlers
+  const handleUpdatePageOneText = (field: keyof PageOneText, value: string) => {
+    setPageOneText(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleUpdatePageTwoText = (field: keyof PageTwoText, value: string) => {
+    setPageTwoText(prev => ({ ...prev, [field]: value }));
+  };
 
   // Auto-save to localStorage whenever data changes
   useEffect(() => {
@@ -116,7 +148,9 @@ const App: React.FC = () => {
         color,
         specs,
         heroImage,
-        galleryImages
+        galleryImages,
+        pageOneText,
+        pageTwoText
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
       console.log('✅ Auto-saved to localStorage:', { 
@@ -124,12 +158,13 @@ const App: React.FC = () => {
         color, 
         specsCount: specs.length,
         heroImageLoaded: !!heroImage.image,
-        galleryImagesCount: galleryImages.length
+        galleryImagesCount: galleryImages.length,
+        textFieldsSaved: true
       });
     } catch (error) {
       console.error('❌ Error saving data:', error);
     }
-  }, [theme, color, specs, heroImage, galleryImages]);
+  }, [theme, color, specs, heroImage, galleryImages, pageOneText, pageTwoText]);
 
   // --- Handlers ---
 
@@ -221,6 +256,17 @@ const App: React.FC = () => {
     }));
   };
 
+  const handleUpdateRow = (sectionId: string, rowIndex: number, field: 'label' | 'value', newValue: string) => {
+    setSpecs(prevSpecs => prevSpecs.map(section => {
+        if (section.id === sectionId) {
+            const newRows = [...section.rows];
+            newRows[rowIndex] = { ...newRows[rowIndex], [field]: newValue };
+            return { ...section, rows: newRows };
+        }
+        return section;
+    }));
+  };
+
   const getCSSVariables = () => {
     switch (color) {
       case 'forest': return { '--brand-color': '#1b4d3e', '--brand-color-dark': '#123329' } as React.CSSProperties;
@@ -257,6 +303,8 @@ const App: React.FC = () => {
           scale: 1
         }))
       );
+      setPageOneText(DEFAULT_PAGE_ONE_TEXT);
+      setPageTwoText(DEFAULT_PAGE_TWO_TEXT);
       console.log('🔄 Reset all state to defaults');
     }
   };
@@ -403,13 +451,18 @@ const App: React.FC = () => {
               theme={theme} 
               heroImage={heroImage}
               onUpdateHeroImage={handleUpdateHeroImage}
+              textContent={pageOneText}
+              onUpdateText={handleUpdatePageOneText}
             />
             <PageTwo 
                 theme={theme} 
                 specs={specs} 
                 onAddRow={handleAddRow}
                 onRemoveRow={handleRemoveRow}
+                onUpdateRow={handleUpdateRow}
                 onUpdateSectionTitle={handleUpdateSectionTitle}
+                textContent={pageTwoText}
+                onUpdateText={handleUpdatePageTwoText}
             />
             {galleryImages.length > 0 && renderGalleryPages()}
         </div>

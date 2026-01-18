@@ -1,15 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Editable } from './Editable';
 import { ImageUpload } from './ImageUpload';
-import { ThemeType, HeroImageState } from '../types';
+import { ThemeType, HeroImageState, PageOneText } from '../types';
 
 interface PageProps {
   theme: ThemeType;
   heroImage: HeroImageState;
   onUpdateHeroImage: (updates: Partial<HeroImageState>) => void;
+  textContent: PageOneText;
+  onUpdateText: (field: keyof PageOneText, value: string) => void;
 }
 
-export const PageOne: React.FC<PageProps> = ({ theme, heroImage, onUpdateHeroImage }) => {
+export const PageOne: React.FC<PageProps> = ({ theme, heroImage, onUpdateHeroImage, textContent, onUpdateText }) => {
   // --- Panning & Zooming Logic for Hero Image ---
   const [isPanning, setIsPanning] = useState(false);
   const startPanPos = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
@@ -65,18 +67,24 @@ export const PageOne: React.FC<PageProps> = ({ theme, heroImage, onUpdateHeroIma
       <div className="px-12 pt-12 pb-6 flex justify-between items-end border-b border-gray-100">
          <div>
             <Editable 
-              initialValue="X-2000 SERIES" 
+              initialValue={textContent.seriesTitle}
+              onChange={(val) => onUpdateText('seriesTitle', val)}
               className="text-sm font-mono tracking-[0.3em] text-gray-400 uppercase mb-1"
             />
             <Editable 
-              initialValue="INDUSTRIAL HARVESTER" 
+              initialValue={textContent.mainTitle}
+              onChange={(val) => onUpdateText('mainTitle', val)}
               tag="h1" 
               className="text-4xl font-black tracking-tight uppercase font-sans leading-none text-gray-900"
             />
          </div>
          <div className="flex flex-col items-end">
              <div className="h-2 w-12 bg-brand mb-2"></div>
-             <Editable initialValue="MODEL YEAR 2025" className="text-xs font-bold text-gray-900" />
+             <Editable 
+               initialValue={textContent.modelYear}
+               onChange={(val) => onUpdateText('modelYear', val)}
+               className="text-xs font-bold text-gray-900"
+             />
          </div>
       </div>
 
@@ -117,26 +125,54 @@ export const PageOne: React.FC<PageProps> = ({ theme, heroImage, onUpdateHeroIma
         {/* Introduction Text */}
         <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-xl font-bold text-gray-900 mb-4 uppercase tracking-wide border-b-2 border-brand inline-block pb-1">
-                <Editable initialValue="Вступ" />
+                <Editable 
+                  initialValue={textContent.introHeading}
+                  onChange={(val) => onUpdateText('introHeading', val)}
+                />
             </h2>
             <Editable 
-                initialValue="Ця машина являє собою вершину інженерної думки в галузі лісозаготівлі. Розроблена для забезпечення максимальної ефективності та надійності, вона поєднує в собі потужність передових технологій та ергономіку нового покоління. Ідеальне рішення для найскладніших завдань." 
+                initialValue={textContent.introText}
+                onChange={(val) => onUpdateText('introText', val)}
                 className="text-lg text-gray-600 leading-relaxed font-light"
             />
             
             {/* Highlights / Bullets */}
             <div className="grid grid-cols-3 gap-8 mt-10 text-left border-t border-gray-100 pt-6">
                 <div>
-                     <Editable initialValue="ЕФЕКТИВНІСТЬ" className="font-bold text-xs text-brand mb-2 uppercase" />
-                     <Editable initialValue="Зниження витрат палива на 15% завдяки новій гідравліці." className="text-sm text-gray-500" />
+                     <Editable 
+                       initialValue={textContent.feature1Title}
+                       onChange={(val) => onUpdateText('feature1Title', val)}
+                       className="font-bold text-xs text-brand mb-2 uppercase"
+                     />
+                     <Editable 
+                       initialValue={textContent.feature1Text}
+                       onChange={(val) => onUpdateText('feature1Text', val)}
+                       className="text-sm text-gray-500"
+                     />
                 </div>
                 <div>
-                     <Editable initialValue="НАДІЙНІСТЬ" className="font-bold text-xs text-brand mb-2 uppercase" />
-                     <Editable initialValue="Посилена рама та компоненти для роботи 24/7." className="text-sm text-gray-500" />
+                     <Editable 
+                       initialValue={textContent.feature2Title}
+                       onChange={(val) => onUpdateText('feature2Title', val)}
+                       className="font-bold text-xs text-brand mb-2 uppercase"
+                     />
+                     <Editable 
+                       initialValue={textContent.feature2Text}
+                       onChange={(val) => onUpdateText('feature2Text', val)}
+                       className="text-sm text-gray-500"
+                     />
                 </div>
                 <div>
-                     <Editable initialValue="КОМФОРТ" className="font-bold text-xs text-brand mb-2 uppercase" />
-                     <Editable initialValue="Кабіна з оглядом 360° та системою клімат-контролю." className="text-sm text-gray-500" />
+                     <Editable 
+                       initialValue={textContent.feature3Title}
+                       onChange={(val) => onUpdateText('feature3Title', val)}
+                       className="font-bold text-xs text-brand mb-2 uppercase"
+                     />
+                     <Editable 
+                       initialValue={textContent.feature3Text}
+                       onChange={(val) => onUpdateText('feature3Text', val)}
+                       className="text-sm text-gray-500"
+                     />
                 </div>
             </div>
         </div>

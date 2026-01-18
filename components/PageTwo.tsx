@@ -1,6 +1,6 @@
 import React from 'react';
 import { Editable } from './Editable';
-import { SpecSection, ThemeType } from '../types';
+import { SpecSection, ThemeType, PageTwoText } from '../types';
 import { Plus, Trash2 } from 'lucide-react';
 
 interface PageProps {
@@ -8,7 +8,10 @@ interface PageProps {
   specs: SpecSection[];
   onAddRow: (sectionId: string) => void;
   onRemoveRow: (sectionId: string, rowIndex: number) => void;
+  onUpdateRow: (sectionId: string, rowIndex: number, field: 'label' | 'value', newValue: string) => void;
   onUpdateSectionTitle: (id: string, newTitle: string) => void;
+  textContent: PageTwoText;
+  onUpdateText: (field: keyof PageTwoText, value: string) => void;
 }
 
 export const PageTwo: React.FC<PageProps> = ({ 
@@ -16,7 +19,10 @@ export const PageTwo: React.FC<PageProps> = ({
   specs, 
   onAddRow, 
   onRemoveRow,
-  onUpdateSectionTitle
+  onUpdateRow,
+  onUpdateSectionTitle,
+  textContent,
+  onUpdateText
 }) => {
   return (
     <div className={`a4-page relative flex flex-col p-10 theme-${theme}`}>
@@ -27,7 +33,11 @@ export const PageTwo: React.FC<PageProps> = ({
             <div className="w-16 h-1 bg-brand"></div>
         </div>
         <div className="text-right">
-             <Editable initialValue="DATASHEET 2.0" className="text-xs font-mono text-gray-400" />
+             <Editable 
+               initialValue={textContent.datasheet}
+               onChange={(val) => onUpdateText('datasheet', val)}
+               className="text-xs font-mono text-gray-400"
+             />
         </div>
       </div>
 
@@ -66,12 +76,18 @@ export const PageTwo: React.FC<PageProps> = ({
                                         
                                         {/* Parameter Name */}
                                         <td className="py-3 px-6 text-gray-600 font-medium w-[40%] border-r border-gray-200 text-sm relative">
-                                            <Editable initialValue={row.label} />
+                                            <Editable 
+                                              initialValue={row.label}
+                                              onChange={(val) => onUpdateRow(section.id, rowIndex, 'label', val)}
+                                            />
                                         </td>
                                         
                                         {/* Parameter Value */}
                                         <td className="py-3 px-6 text-black font-mono font-semibold text-sm relative pr-10">
-                                            <Editable initialValue={row.value} />
+                                            <Editable 
+                                              initialValue={row.value}
+                                              onChange={(val) => onUpdateRow(section.id, rowIndex, 'value', val)}
+                                            />
                                             
                                             {/* Remove Row Button */}
                                             {section.rows.length > 1 && (

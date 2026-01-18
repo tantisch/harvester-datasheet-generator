@@ -28,9 +28,29 @@ export interface SpecSection {
   rows: SpecRow[];
 }
 
+export interface PageOneText {
+  seriesTitle: string;
+  mainTitle: string;
+  modelYear: string;
+  introHeading: string;
+  introText: string;
+  feature1Title: string;
+  feature1Text: string;
+  feature2Title: string;
+  feature2Text: string;
+  feature3Title: string;
+  feature3Text: string;
+}
+
+export interface PageTwoText {
+  datasheet: string;
+}
+
 export interface AppState {
   theme: ThemeType;
   color: BrandColor;
   galleryImages: GalleryImage[];
   specs: SpecSection[];
+  pageOneText: PageOneText;
+  pageTwoText: PageTwoText;
 }
