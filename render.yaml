@@ -1,0 +1,12 @@
+services:
+  # PDF Generation Server
+  - type: web
+    name: harvester-pdf-server
+    env: node
+    buildCommand: npm install
+    startCommand: node pdf-server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /health
+
