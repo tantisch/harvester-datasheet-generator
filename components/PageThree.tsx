@@ -140,12 +140,14 @@ export const GalleryPage: React.FC<GalleryPageProps> = ({
                         onWheel={(e) => handleWheel(e, img)}
                     >
                         <ImageUpload 
+                            image={img.image}
                             className="w-full h-full border-none" 
                             placeholder="Фото" 
                             aspectRatioClass="h-full w-full object-cover"
                             posX={img.posX}
                             posY={img.posY}
                             scale={img.scale}
+                            onImageChange={(imageData) => onUpdateImage(img.id, { image: imageData })}
                         />
 
                         {/* Drag Handle (Top Right) */}

@@ -116,7 +116,8 @@ const App: React.FC = () => {
   // Gallery State
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(
       savedData.galleryImages || Array.from({ length: 4 }).map((_, i) => ({ 
-          id: `img-${i}`, 
+          id: `img-${i}`,
+          image: null,
           width: 50, 
           height: 300,
           posX: 50,
@@ -181,6 +182,7 @@ const App: React.FC = () => {
           if (count > prev.length) {
               const newImages = Array.from({ length: count - prev.length }).map((_, i) => ({
                   id: `img-${Date.now()}-${i}`,
+                  image: null,
                   width: 50,
                   height: 300,
                   posX: 50,
@@ -295,7 +297,8 @@ const App: React.FC = () => {
       });
       setGalleryImages(
         Array.from({ length: 4 }).map((_, i) => ({ 
-          id: `img-${i}`, 
+          id: `img-${i}`,
+          image: null,
           width: 50, 
           height: 300,
           posX: 50,

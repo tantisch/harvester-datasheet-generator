@@ -98,12 +98,13 @@ export const PageOne: React.FC<PageProps> = ({ theme, heroImage, onUpdateHeroIma
             onWheel={handleWheel}
         >
             <ImageUpload 
+                image={heroImage.image}
                 className="w-full h-full bg-gray-50 border-none" 
                 placeholder="Завантажити фото (Широкий формат)" 
                 posX={heroImage.posX}
                 posY={heroImage.posY}
                 scale={heroImage.scale}
-                onImageChange={() => {}} 
+                onImageChange={(imageData) => onUpdateHeroImage({ image: imageData })}
             />
             
             {/* Hint Overlay */}

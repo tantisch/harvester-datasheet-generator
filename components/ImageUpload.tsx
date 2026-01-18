@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Upload, Image as ImageIcon, RefreshCcw } from 'lucide-react';
 
 interface ImageUploadProps {
+  image?: string | null; // Controlled: parent provides the image
   className?: string;
   placeholder?: string;
   aspectRatioClass?: string;
   posX?: number;
   posY?: number;
   scale?: number;
-  onImageChange?: (hasImage: boolean) => void;
+  onImageChange?: (imageData: string | null) => void; // Now passes actual image data
 }
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({ 
+  image = null, // Controlled component
   className = '', 
   placeholder = 'Завантажити фото',
   aspectRatioClass = 'h-full w-full',
@@ -20,15 +22,13 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   scale = 1,
   onImageChange
 }) => {
-  const [image, setImage] = useState<string | null>(null);
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImage(reader.result as string);
-        onImageChange?.(true);
+        const imageData = reader.result as string;
+        onImageChange?.(imageData); // Pass the actual base64 data to parent
       };
       reader.readAsDataURL(file);
     }

@@ -10,6 +10,7 @@ export interface HeroImageState {
 
 export interface GalleryImage {
   id: string;
+  image: string | null; // base64 image data
   width: number; // percentage 20-100
   height: number; // pixels 200-800
   posX: number; // object-position x % (0-100)
