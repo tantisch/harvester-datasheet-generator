@@ -3,8 +3,21 @@
 // Run: node pdf-server.js
 
 import express from 'express';
-import puppeteer from 'puppeteer';
 import cors from 'cors';
+
+// Use puppeteer-core with chromium for serverless (Render)
+// Use regular puppeteer for local development
+let puppeteer;
+let chromium;
+
+if (process.env.NODE_ENV === 'production') {
+  // Production: Use puppeteer-core with chromium
+  puppeteer = (await import('puppeteer-core')).default;
+  chromium = (await import('@sparticuz/chromium')).default;
+} else {
+  // Development: Use regular puppeteer
+  puppeteer = (await import('puppeteer')).default;
+}
 
 const app = express();
 
@@ -34,10 +47,25 @@ app.post('/generate-pdf', async (req, res) => {
     console.log('Generating PDF...');
 
     // Launch headless browser
-    browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
+    let launchOptions;
+    
+    if (process.env.NODE_ENV === 'production') {
+      // Production: Use chromium with optimized args for Render
+      launchOptions = {
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+      };
+    } else {
+      // Development: Use local Chrome
+      launchOptions = {
+        headless: 'new',
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      };
+    }
+
+    browser = await puppeteer.launch(launchOptions);
 
     const page = await browser.newPage();
     
