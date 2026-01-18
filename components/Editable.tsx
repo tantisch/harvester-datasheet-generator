@@ -25,6 +25,13 @@ export const Editable: React.FC<EditableProps> = ({
     }
   }, [initialValue]);
 
+  const handleInput = (e: React.FormEvent<HTMLElement>) => {
+    if (onChange) {
+      const newValue = e.currentTarget.innerText;
+      onChange(newValue);
+    }
+  };
+
   const handleBlur = (e: React.FocusEvent<HTMLElement>) => {
     if (onChange) {
       const newValue = e.currentTarget.innerText;
@@ -41,6 +48,7 @@ export const Editable: React.FC<EditableProps> = ({
       contentEditable
       suppressContentEditableWarning
       data-placeholder={placeholder}
+      onInput={handleInput}
       onBlur={handleBlur}
     >
       {initialValue}
