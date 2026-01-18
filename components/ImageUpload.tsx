@@ -1,5 +1,5 @@
 import React from 'react';
-import { Upload, Image as ImageIcon, RefreshCcw } from 'lucide-react';
+import { Upload, Image as ImageIcon, RefreshCcw, X } from 'lucide-react';
 
 interface ImageUploadProps {
   image?: string | null; // Controlled: parent provides the image
@@ -34,6 +34,10 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     }
   };
 
+  const handleRemove = () => {
+    onImageChange?.(null); // Clear the image
+  };
+
   return (
     <div className={`relative group overflow-hidden bg-gray-50 border border-gray-100 transition-colors ${className}`}>
       {image ? (
@@ -48,8 +52,9 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                 transformOrigin: 'center center'
               }} 
             />
-            {/* Discrete Upload/Change Button - Minimalist */}
-            <div className="absolute top-2 left-2 z-30 opacity-0 group-hover:opacity-100 transition-opacity">
+            {/* Image Controls - Change and Remove */}
+            <div className="absolute top-2 left-2 z-30 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                 {/* Change Button */}
                  <label className="cursor-pointer bg-white/90 hover:bg-white hover:text-brand text-gray-500 p-1 rounded-sm shadow-sm flex items-center gap-1 text-[9px] font-bold uppercase backdrop-blur-sm transition-colors">
                     <RefreshCcw size={10} />
                     <span>Change</span>
@@ -61,6 +66,15 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                        title="" 
                      />
                  </label>
+                 
+                 {/* Remove Button */}
+                 <button
+                   onClick={handleRemove}
+                   className="cursor-pointer bg-red-500/90 hover:bg-red-600 text-white p-1 rounded-sm shadow-sm flex items-center gap-1 text-[9px] font-bold uppercase backdrop-blur-sm transition-colors"
+                 >
+                    <X size={10} />
+                    <span>Remove</span>
+                 </button>
             </div>
         </>
       ) : (
