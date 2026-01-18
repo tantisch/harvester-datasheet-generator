@@ -118,7 +118,7 @@ const App: React.FC = () => {
   // Gallery State
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(
       savedData.galleryImages || Array.from({ length: 4 }).map((_, i) => ({ 
-          id: `img-${i}`,
+          id: `img-${i}`, 
           image: null,
           width: 50, 
           height: 300,
@@ -344,7 +344,7 @@ const App: React.FC = () => {
     try {
       // Get the HTML content
       const html = container.innerHTML;
-      
+    
       // Get CSS variables
       const brandColor = getCSSVariables()['--brand-color'];
       const brandColorDark = getCSSVariables()['--brand-color-dark'];
@@ -385,7 +385,7 @@ const App: React.FC = () => {
       console.error('PDF Error:', error);
       alert('PDF Server Error: Make sure the server is running.\n\nRun in terminal:\n  npm install express puppeteer cors\n  node pdf-server.js');
     } finally {
-      setIsDownloading(false);
+        setIsDownloading(false);
     }
   };
 

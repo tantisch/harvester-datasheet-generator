@@ -58,11 +58,11 @@ export const PageOne: React.FC<PageProps> = ({ theme, heroImage, onUpdateHeroIma
             const dy = e.clientY - startResizePos.current.y;
             
             // Calculate new percentage width
-            const contentWidthPx = 650; // approx safe width for hero
+            const contentWidthPx = 700; // approx safe width
             const widthDeltaPercent = (dx / contentWidthPx) * 100;
 
-            const newWidth = Math.min(Math.max(startResizePos.current.w + widthDeltaPercent, 50), 100);
-            const newHeight = Math.min(Math.max(startResizePos.current.h + dy, 200), 600);
+            const newWidth = Math.min(Math.max(startResizePos.current.w + widthDeltaPercent, 20), 100);
+            const newHeight = Math.min(Math.max(startResizePos.current.h + dy, 150), 600);
 
             onUpdateHeroImage({ width: newWidth, height: newHeight });
         }
@@ -125,51 +125,50 @@ export const PageOne: React.FC<PageProps> = ({ theme, heroImage, onUpdateHeroIma
         
         {/* Cinematic Hero Image (Resizable) */}
         <div 
-            className="relative mx-auto"
-            style={{ width: `${heroImage.width}%` }}
+            className="mx-auto relative transition-all duration-75"
+            style={{ width: `${heroImage.width}%`, height: `${heroImage.height}px` }}
         >
-          <div 
-            className={`relative shadow-sm group overflow-hidden ${isPanning ? 'cursor-grabbing' : 'cursor-default'}`}
-            style={{ height: `${heroImage.height}px` }}
-            onMouseDown={handlePanStart}
-            onWheel={handleWheel}
-          >
-            <ImageUpload 
-                image={heroImage.image}
-                className="w-full h-full bg-gray-50 border-none" 
-                placeholder="Завантажити фото (Широкий формат)" 
-                posX={heroImage.posX}
-                posY={heroImage.posY}
-                scale={heroImage.scale}
-                onImageChange={(imageData) => onUpdateHeroImage({ image: imageData })}
-            />
-            
-            {/* Hint Overlay */}
-            <div className="absolute top-2 left-2 pointer-events-none opacity-0 group-hover:opacity-60 text-[9px] font-mono bg-white px-1 text-black z-20">
-                 DRAG TO PAN | SCROLL TO ZOOM | DRAG CORNER TO RESIZE
-            </div>
-
-            {/* Resize Handle */}
             <div 
-                className="absolute bottom-0 right-0 w-4 h-4 bg-brand/80 cursor-nwse-resize opacity-0 group-hover:opacity-100 transition-opacity z-30 no-print flex items-center justify-center"
-                onMouseDown={handleResizeStart}
-                title="Drag to Resize"
+                className={`w-full h-full relative shadow-sm group overflow-hidden bg-gray-50 border border-gray-100 ${isPanning ? 'cursor-grabbing' : 'cursor-default'}`}
+                onMouseDown={handlePanStart}
+                onWheel={handleWheel}
             >
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 0L10 10L0 10" stroke="white" strokeWidth="1.5"/>
-                </svg>
-            </div>
+                <ImageUpload 
+                    image={heroImage.image}
+                    className="w-full h-full bg-gray-50 border-none" 
+                    placeholder="Завантажити фото (Широкий формат)" 
+                    posX={heroImage.posX}
+                    posY={heroImage.posY}
+                    scale={heroImage.scale}
+                    onImageChange={(imageData) => onUpdateHeroImage({ image: imageData })}
+                />
+                
+                {/* Hint Overlay */}
+                <div className="absolute top-2 left-2 pointer-events-none opacity-0 group-hover:opacity-60 text-[9px] font-mono bg-white px-1 text-black z-20">
+                     DRAG TO PAN | SCROLL TO ZOOM
+                </div>
 
-            {/* Technical decoration lines */}
-            <div className="absolute -left-2 top-0 bottom-0 border-l border-gray-200 flex flex-col justify-between py-2 pl-1 pointer-events-none">
-                <span className="w-1 h-px bg-gray-300"></span>
-                <span className="w-1 h-px bg-gray-300"></span>
+                {/* Resize Handle (Bottom Right) */}
+                <div 
+                    className="absolute bottom-0 right-0 w-6 h-6 bg-brand cursor-nwse-resize opacity-0 group-hover:opacity-100 transition-opacity z-20 flex items-center justify-center text-white rounded-tl-lg no-print"
+                    onMouseDown={handleResizeStart}
+                    title="Drag to Resize"
+                >
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 10L0 10L10 0V10Z" fill="white"/>
+                    </svg>
+                </div>
+
+                {/* Technical decoration lines */}
+                <div className="absolute -left-2 top-0 bottom-0 border-l border-gray-200 flex flex-col justify-between py-2 pl-1 pointer-events-none">
+                    <span className="w-1 h-px bg-gray-300"></span>
+                    <span className="w-1 h-px bg-gray-300"></span>
+                </div>
+                <div className="absolute -right-2 top-0 bottom-0 border-r border-gray-200 flex flex-col justify-between py-2 pr-1 pointer-events-none">
+                    <span className="w-1 h-px bg-gray-300"></span>
+                    <span className="w-1 h-px bg-gray-300"></span>
+                </div>
             </div>
-            <div className="absolute -right-2 top-0 bottom-0 border-r border-gray-200 flex flex-col justify-between py-2 pr-1 pointer-events-none">
-                <span className="w-1 h-px bg-gray-300"></span>
-                <span className="w-1 h-px bg-gray-300"></span>
-            </div>
-          </div>
         </div>
 
         {/* Introduction Text */}
