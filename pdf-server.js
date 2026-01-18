@@ -135,11 +135,12 @@ app.post('/generate-pdf', async (req, res) => {
     `;
 
     await page.setContent(fullHTML, {
-      waitUntil: ['networkidle0', 'domcontentloaded']
+      waitUntil: 'domcontentloaded',
+      timeout: 60000 // Increase timeout to 60 seconds
     });
 
-    // Wait for Tailwind and fonts to load
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Wait for images and fonts to load
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Generate PDF with high quality
     const pdfBuffer = await page.pdf({
