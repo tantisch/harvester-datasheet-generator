@@ -3,6 +3,8 @@ export type BrandColor = 'forest' | 'yellow' | 'steel';
 
 export interface HeroImageState {
   image: string | null;
+  width: number; // percentage 50-100
+  height: number; // pixels 200-600
   posX: number;
   posY: number;
   scale: number;

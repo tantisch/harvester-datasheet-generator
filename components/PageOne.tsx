@@ -12,6 +12,22 @@ interface PageProps {
 }
 
 export const PageOne: React.FC<PageProps> = ({ theme, heroImage, onUpdateHeroImage, textContent, onUpdateText }) => {
+  // --- Resizing Logic ---
+  const [isResizing, setIsResizing] = useState(false);
+  const startResizePos = useRef({ x: 0, y: 0, w: 0, h: 0 });
+
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsResizing(true);
+    startResizePos.current = {
+        x: e.clientX,
+        y: e.clientY,
+        w: heroImage.width,
+        h: heroImage.height
+    };
+  };
+
   // --- Panning & Zooming Logic for Hero Image ---
   const [isPanning, setIsPanning] = useState(false);
   const startPanPos = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
@@ -37,20 +53,36 @@ export const PageOne: React.FC<PageProps> = ({ theme, heroImage, onUpdateHeroIma
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-        if (!isPanning) return;
-        const dx = e.clientX - startPanPos.current.x;
-        const dy = e.clientY - startPanPos.current.y;
-        const sensitivity = 0.2;
-        const newPosX = Math.min(Math.max(startPanPos.current.posX - (dx * sensitivity), 0), 100);
-        const newPosY = Math.min(Math.max(startPanPos.current.posY - (dy * sensitivity), 0), 100);
-        onUpdateHeroImage({ posX: newPosX, posY: newPosY });
+        if (isResizing) {
+            const dx = e.clientX - startResizePos.current.x;
+            const dy = e.clientY - startResizePos.current.y;
+            
+            // Calculate new percentage width
+            const contentWidthPx = 650; // approx safe width for hero
+            const widthDeltaPercent = (dx / contentWidthPx) * 100;
+
+            const newWidth = Math.min(Math.max(startResizePos.current.w + widthDeltaPercent, 50), 100);
+            const newHeight = Math.min(Math.max(startResizePos.current.h + dy, 200), 600);
+
+            onUpdateHeroImage({ width: newWidth, height: newHeight });
+        }
+
+        if (isPanning) {
+            const dx = e.clientX - startPanPos.current.x;
+            const dy = e.clientY - startPanPos.current.y;
+            const sensitivity = 0.2;
+            const newPosX = Math.min(Math.max(startPanPos.current.posX - (dx * sensitivity), 0), 100);
+            const newPosY = Math.min(Math.max(startPanPos.current.posY - (dy * sensitivity), 0), 100);
+            onUpdateHeroImage({ posX: newPosX, posY: newPosY });
+        }
     };
 
     const handleMouseUp = () => {
+        setIsResizing(false);
         setIsPanning(false);
     };
 
-    if (isPanning) {
+    if (isResizing || isPanning) {
         window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('mouseup', handleMouseUp);
     }
@@ -58,7 +90,7 @@ export const PageOne: React.FC<PageProps> = ({ theme, heroImage, onUpdateHeroIma
         window.removeEventListener('mousemove', handleMouseMove);
         window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isPanning, onUpdateHeroImage]);
+  }, [isResizing, isPanning, onUpdateHeroImage]);
 
 
   return (
@@ -91,12 +123,17 @@ export const PageOne: React.FC<PageProps> = ({ theme, heroImage, onUpdateHeroIma
       {/* Main Content Area - Centered Vertically */}
       <div className="flex-1 flex flex-col justify-center px-12 py-8 gap-8">
         
-        {/* Cinematic Hero Image (Shorter Height) */}
+        {/* Cinematic Hero Image (Resizable) */}
         <div 
-            className={`w-full aspect-[21/9] relative shadow-sm group overflow-hidden ${isPanning ? 'cursor-grabbing' : 'cursor-default'}`}
+            className="relative mx-auto"
+            style={{ width: `${heroImage.width}%` }}
+        >
+          <div 
+            className={`relative shadow-sm group overflow-hidden ${isPanning ? 'cursor-grabbing' : 'cursor-default'}`}
+            style={{ height: `${heroImage.height}px` }}
             onMouseDown={handlePanStart}
             onWheel={handleWheel}
-        >
+          >
             <ImageUpload 
                 image={heroImage.image}
                 className="w-full h-full bg-gray-50 border-none" 
@@ -109,7 +146,18 @@ export const PageOne: React.FC<PageProps> = ({ theme, heroImage, onUpdateHeroIma
             
             {/* Hint Overlay */}
             <div className="absolute top-2 left-2 pointer-events-none opacity-0 group-hover:opacity-60 text-[9px] font-mono bg-white px-1 text-black z-20">
-                 DRAG TO PAN | SCROLL TO ZOOM
+                 DRAG TO PAN | SCROLL TO ZOOM | DRAG CORNER TO RESIZE
+            </div>
+
+            {/* Resize Handle */}
+            <div 
+                className="absolute bottom-0 right-0 w-4 h-4 bg-brand/80 cursor-nwse-resize opacity-0 group-hover:opacity-100 transition-opacity z-30 no-print flex items-center justify-center"
+                onMouseDown={handleResizeStart}
+                title="Drag to Resize"
+            >
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 0L10 10L0 10" stroke="white" strokeWidth="1.5"/>
+                </svg>
             </div>
 
             {/* Technical decoration lines */}
@@ -121,6 +169,7 @@ export const PageOne: React.FC<PageProps> = ({ theme, heroImage, onUpdateHeroIma
                 <span className="w-1 h-px bg-gray-300"></span>
                 <span className="w-1 h-px bg-gray-300"></span>
             </div>
+          </div>
         </div>
 
         {/* Introduction Text */}

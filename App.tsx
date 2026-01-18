@@ -108,6 +108,8 @@ const App: React.FC = () => {
   // Page 1 Hero Image State
   const [heroImage, setHeroImage] = useState<HeroImageState>(savedData.heroImage || {
       image: null,
+      width: 100,
+      height: 350,
       posX: 50,
       posY: 50,
       scale: 1
@@ -309,6 +311,8 @@ const App: React.FC = () => {
       setSpecs(DEFAULT_SPECS);
       setHeroImage({
         image: null,
+        width: 100,
+        height: 350,
         posX: 50,
         posY: 50,
         scale: 1
