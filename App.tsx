@@ -61,30 +61,33 @@ const DEFAULT_SPECS: SpecSection[] = [
   }
 ];
 
-// Load saved data from localStorage
-const loadSavedData = () => {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      return JSON.parse(saved);
-    }
-  } catch (error) {
-    console.error('Error loading saved data:', error);
-  }
-  return null;
-};
-
 const App: React.FC = () => {
-  // Load saved data or use defaults
-  const savedData = loadSavedData();
-  
-  const [theme, setTheme] = useState<ThemeType>(savedData?.theme || 'sharp');
-  const [color, setColor] = useState<BrandColor>(savedData?.color || 'forest');
-  const [specs, setSpecs] = useState<SpecSection[]>(savedData?.specs || DEFAULT_SPECS);
+  // Load saved data from localStorage ONCE
+  const getSavedData = () => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        console.log('📦 Loaded saved data from localStorage:', data);
+        return data;
+      }
+    } catch (error) {
+      console.error('❌ Error loading saved data:', error);
+    }
+    console.log('📝 No saved data found, using defaults');
+    return {};
+  };
+
+  // Load saved data once
+  const savedData = getSavedData();
+
+  const [theme, setTheme] = useState<ThemeType>(savedData.theme || 'sharp');
+  const [color, setColor] = useState<BrandColor>(savedData.color || 'forest');
+  const [specs, setSpecs] = useState<SpecSection[]>(savedData.specs || DEFAULT_SPECS);
   const [isDownloading, setIsDownloading] = useState(false);
   
   // Page 1 Hero Image State
-  const [heroImage, setHeroImage] = useState<HeroImageState>(savedData?.heroImage || {
+  const [heroImage, setHeroImage] = useState<HeroImageState>(savedData.heroImage || {
       image: null,
       posX: 50,
       posY: 50,
@@ -93,7 +96,7 @@ const App: React.FC = () => {
 
   // Gallery State
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(
-      savedData?.galleryImages || Array.from({ length: 4 }).map((_, i) => ({ 
+      savedData.galleryImages || Array.from({ length: 4 }).map((_, i) => ({ 
           id: `img-${i}`, 
           width: 50, 
           height: 300,
@@ -116,9 +119,15 @@ const App: React.FC = () => {
         galleryImages
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
-      console.log('✅ Auto-saved');
+      console.log('✅ Auto-saved to localStorage:', { 
+        theme, 
+        color, 
+        specsCount: specs.length,
+        heroImageLoaded: !!heroImage.image,
+        galleryImagesCount: galleryImages.length
+      });
     } catch (error) {
-      console.error('Error saving data:', error);
+      console.error('❌ Error saving data:', error);
     }
   }, [theme, color, specs, heroImage, galleryImages]);
 
@@ -226,6 +235,8 @@ const App: React.FC = () => {
     if (confirm('Ви впевнені? Це видалить всі зміни та відновить значення за замовчуванням.')) {
       // Clear localStorage
       localStorage.removeItem(STORAGE_KEY);
+      console.log('🗑️ Cleared localStorage');
+      
       // Reset all state to defaults
       setTheme('sharp');
       setColor('forest');
@@ -246,7 +257,7 @@ const App: React.FC = () => {
           scale: 1
         }))
       );
-      console.log('🔄 Reset to defaults');
+      console.log('🔄 Reset all state to defaults');
     }
   };
 
