@@ -234,6 +234,24 @@ const App: React.FC = () => {
     setSpecs(specs.filter(s => s.id !== id));
   };
 
+  const handleMoveSectionUp = (id: string) => {
+    const index = specs.findIndex(s => s.id === id);
+    if (index > 0) {
+      const newSpecs = [...specs];
+      [newSpecs[index - 1], newSpecs[index]] = [newSpecs[index], newSpecs[index - 1]];
+      setSpecs(newSpecs);
+    }
+  };
+
+  const handleMoveSectionDown = (id: string) => {
+    const index = specs.findIndex(s => s.id === id);
+    if (index < specs.length - 1) {
+      const newSpecs = [...specs];
+      [newSpecs[index], newSpecs[index + 1]] = [newSpecs[index + 1], newSpecs[index]];
+      setSpecs(newSpecs);
+    }
+  };
+
   // Row Management Handlers
   const handleAddRow = (sectionId: string) => {
     setSpecs(prevSpecs => prevSpecs.map(section => {
@@ -464,6 +482,8 @@ const App: React.FC = () => {
                 onRemoveRow={handleRemoveRow}
                 onUpdateRow={handleUpdateRow}
                 onUpdateSectionTitle={handleUpdateSectionTitle}
+                onMoveSectionUp={handleMoveSectionUp}
+                onMoveSectionDown={handleMoveSectionDown}
                 textContent={pageTwoText}
                 onUpdateText={handleUpdatePageTwoText}
             />

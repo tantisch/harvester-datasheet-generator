@@ -1,7 +1,7 @@
 import React from 'react';
 import { Editable } from './Editable';
 import { SpecSection, ThemeType, PageTwoText } from '../types';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 
 interface PageProps {
   theme: ThemeType;
@@ -10,6 +10,8 @@ interface PageProps {
   onRemoveRow: (sectionId: string, rowIndex: number) => void;
   onUpdateRow: (sectionId: string, rowIndex: number, field: 'label' | 'value', newValue: string) => void;
   onUpdateSectionTitle: (id: string, newTitle: string) => void;
+  onMoveSectionUp: (id: string) => void;
+  onMoveSectionDown: (id: string) => void;
   textContent: PageTwoText;
   onUpdateText: (field: keyof PageTwoText, value: string) => void;
 }
@@ -21,6 +23,8 @@ export const PageTwo: React.FC<PageProps> = ({
   onRemoveRow,
   onUpdateRow,
   onUpdateSectionTitle,
+  onMoveSectionUp,
+  onMoveSectionDown,
   textContent,
   onUpdateText
 }) => {
@@ -62,6 +66,26 @@ export const PageTwo: React.FC<PageProps> = ({
                                                   initialValue={section.title} 
                                                   onChange={(val) => onUpdateSectionTitle(section.id, val)}
                                                 />
+                                                
+                                                {/* Move Section Up/Down Buttons (Top Right) */}
+                                                <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity no-print">
+                                                    <button 
+                                                        onClick={() => onMoveSectionUp(section.id)}
+                                                        disabled={sectionIdx === 0}
+                                                        className="bg-gray-600 text-white p-1 rounded hover:scale-110 transition-transform disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                                        title="Move Section Up"
+                                                    >
+                                                        <ChevronUp size={12} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => onMoveSectionDown(section.id)}
+                                                        disabled={sectionIdx === specs.length - 1}
+                                                        className="bg-gray-600 text-white p-1 rounded hover:scale-110 transition-transform disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                                        title="Move Section Down"
+                                                    >
+                                                        <ChevronDown size={12} />
+                                                    </button>
+                                                </div>
                                                 
                                                 {/* Add Row Button (Bottom of Section Label) */}
                                                 <button 
