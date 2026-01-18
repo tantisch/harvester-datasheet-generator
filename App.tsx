@@ -1,9 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { PageOne } from './components/PageOne';
 import { PageTwo } from './components/PageTwo';
 import { GalleryPage } from './components/PageThree';
 import { ThemeType, BrandColor, SpecSection, GalleryImage, HeroImageState } from './types';
+
+// LocalStorage key for auto-save
+const STORAGE_KEY = 'harvester-datasheet-data';
 
 // Default Data
 const DEFAULT_SPECS: SpecSection[] = [
@@ -58,14 +61,30 @@ const DEFAULT_SPECS: SpecSection[] = [
   }
 ];
 
+// Load saved data from localStorage
+const loadSavedData = () => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (error) {
+    console.error('Error loading saved data:', error);
+  }
+  return null;
+};
+
 const App: React.FC = () => {
-  const [theme, setTheme] = useState<ThemeType>('sharp');
-  const [color, setColor] = useState<BrandColor>('forest');
-  const [specs, setSpecs] = useState<SpecSection[]>(DEFAULT_SPECS);
+  // Load saved data or use defaults
+  const savedData = loadSavedData();
+  
+  const [theme, setTheme] = useState<ThemeType>(savedData?.theme || 'sharp');
+  const [color, setColor] = useState<BrandColor>(savedData?.color || 'forest');
+  const [specs, setSpecs] = useState<SpecSection[]>(savedData?.specs || DEFAULT_SPECS);
   const [isDownloading, setIsDownloading] = useState(false);
   
   // Page 1 Hero Image State
-  const [heroImage, setHeroImage] = useState<HeroImageState>({
+  const [heroImage, setHeroImage] = useState<HeroImageState>(savedData?.heroImage || {
       image: null,
       posX: 50,
       posY: 50,
@@ -74,7 +93,7 @@ const App: React.FC = () => {
 
   // Gallery State
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(
-      Array.from({ length: 4 }).map((_, i) => ({ 
+      savedData?.galleryImages || Array.from({ length: 4 }).map((_, i) => ({ 
           id: `img-${i}`, 
           width: 50, 
           height: 300,
@@ -85,6 +104,23 @@ const App: React.FC = () => {
   );
   
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Auto-save to localStorage whenever data changes
+  useEffect(() => {
+    try {
+      const dataToSave = {
+        theme,
+        color,
+        specs,
+        heroImage,
+        galleryImages
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+      console.log('✅ Auto-saved');
+    } catch (error) {
+      console.error('Error saving data:', error);
+    }
+  }, [theme, color, specs, heroImage, galleryImages]);
 
   // --- Handlers ---
 
@@ -182,6 +218,35 @@ const App: React.FC = () => {
       case 'yellow': return { '--brand-color': '#eab308', '--brand-color-dark': '#a16207' } as React.CSSProperties;
       case 'steel': return { '--brand-color': '#475569', '--brand-color-dark': '#1e293b' } as React.CSSProperties;
       default: return {};
+    }
+  };
+
+  // --- RESET HANDLER ---
+  const handleReset = () => {
+    if (confirm('Ви впевнені? Це видалить всі зміни та відновить значення за замовчуванням.')) {
+      // Clear localStorage
+      localStorage.removeItem(STORAGE_KEY);
+      // Reset all state to defaults
+      setTheme('sharp');
+      setColor('forest');
+      setSpecs(DEFAULT_SPECS);
+      setHeroImage({
+        image: null,
+        posX: 50,
+        posY: 50,
+        scale: 1
+      });
+      setGalleryImages(
+        Array.from({ length: 4 }).map((_, i) => ({ 
+          id: `img-${i}`, 
+          width: 50, 
+          height: 300,
+          posX: 50,
+          posY: 50,
+          scale: 1
+        }))
+      );
+      console.log('🔄 Reset to defaults');
     }
   };
 
@@ -314,6 +379,7 @@ const App: React.FC = () => {
         onRemoveSection={handleRemoveSection}
         onUpdateSectionTitle={handleUpdateSectionTitle}
         onDownload={handleDownloadPDF}
+        onReset={handleReset}
         isDownloading={isDownloading}
       />
 

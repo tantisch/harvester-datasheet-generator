@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, Download, Plus, Layout, Palette, Image, Trash2 } from 'lucide-react';
+import { Settings, Download, Plus, Layout, Palette, Image, Trash2, RotateCcw } from 'lucide-react';
 import { ThemeType, BrandColor, SpecSection } from '../types';
 
 interface SidebarProps {
@@ -14,6 +14,7 @@ interface SidebarProps {
   onRemoveSection: (id: string) => void;
   onUpdateSectionTitle: (id: string, newTitle: string) => void;
   onDownload: () => void;
+  onReset: () => void;
   isDownloading: boolean;
 }
 
@@ -26,6 +27,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onRemoveSection,
   onUpdateSectionTitle,
   onDownload,
+  onReset,
   isDownloading
 }) => {
   return (
@@ -141,7 +143,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Actions */}
-      <div className="pt-6 border-t border-gray-100 mt-auto">
+      <div className="pt-6 border-t border-gray-100 mt-auto space-y-3">
         <button
           onClick={onDownload}
           disabled={isDownloading}
@@ -155,6 +157,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
               Завантажити PDF
             </>
           )}
+        </button>
+        <button
+          onClick={onReset}
+          className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-all"
+        >
+          <RotateCcw size={16} />
+          Скинути все
         </button>
       </div>
     </aside>
