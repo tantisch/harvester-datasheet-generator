@@ -143,6 +143,130 @@ const App: React.FC = () => {
     setPageTwoText(prev => ({ ...prev, [field]: value }));
   };
 
+  // Undo/Redo functionality
+  const [history, setHistory] = useState<{
+    past: any[];
+    future: any[];
+  }>({ past: [], future: [] });
+
+  const [isUndoRedoing, setIsUndoRedoing] = useState(false);
+
+  // Save state to history (but not during undo/redo operations)
+  useEffect(() => {
+    if (isUndoRedoing) return;
+
+    const currentState = {
+      theme,
+      color,
+      specs,
+      heroImage,
+      galleryImages,
+      pageOneText,
+      pageTwoText
+    };
+
+    // Debounce: only save to history after 500ms of no changes
+    const timeoutId = setTimeout(() => {
+      setHistory(prev => ({
+        past: [...prev.past.slice(-49), currentState], // Keep last 50 states
+        future: [] // Clear future when new action is made
+      }));
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [theme, color, specs, heroImage, galleryImages, pageOneText, pageTwoText, isUndoRedoing]);
+
+  // Undo function
+  const handleUndo = () => {
+    if (history.past.length === 0) return;
+
+    setIsUndoRedoing(true);
+    const previous = history.past[history.past.length - 1];
+    const newPast = history.past.slice(0, -1);
+
+    const currentState = {
+      theme,
+      color,
+      specs,
+      heroImage,
+      galleryImages,
+      pageOneText,
+      pageTwoText
+    };
+
+    // Restore previous state
+    setTheme(previous.theme);
+    setColor(previous.color);
+    setSpecs(previous.specs);
+    setHeroImage(previous.heroImage);
+    setGalleryImages(previous.galleryImages);
+    setPageOneText(previous.pageOneText);
+    setPageTwoText(previous.pageTwoText);
+
+    setHistory({
+      past: newPast,
+      future: [currentState, ...history.future]
+    });
+
+    setTimeout(() => setIsUndoRedoing(false), 100);
+  };
+
+  // Redo function
+  const handleRedo = () => {
+    if (history.future.length === 0) return;
+
+    setIsUndoRedoing(true);
+    const next = history.future[0];
+    const newFuture = history.future.slice(1);
+
+    const currentState = {
+      theme,
+      color,
+      specs,
+      heroImage,
+      galleryImages,
+      pageOneText,
+      pageTwoText
+    };
+
+    // Restore next state
+    setTheme(next.theme);
+    setColor(next.color);
+    setSpecs(next.specs);
+    setHeroImage(next.heroImage);
+    setGalleryImages(next.galleryImages);
+    setPageOneText(next.pageOneText);
+    setPageTwoText(next.pageTwoText);
+
+    setHistory({
+      past: [...history.past, currentState],
+      future: newFuture
+    });
+
+    setTimeout(() => setIsUndoRedoing(false), 100);
+  };
+
+  // Keyboard shortcuts for Undo/Redo
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd+Z (Mac) or Ctrl+Z (Windows/Linux)
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        handleUndo();
+        console.log('⏮️ Undo');
+      }
+      // Cmd+Shift+Z (Mac) or Ctrl+Y (Windows/Linux)
+      else if (((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'z') || (e.ctrlKey && e.key === 'y')) {
+        e.preventDefault();
+        handleRedo();
+        console.log('⏭️ Redo');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [history]);
+
   // Auto-save to localStorage whenever data changes
   useEffect(() => {
     try {
