@@ -102,7 +102,7 @@ export const PageTwo: React.FC<PageProps> = ({
                                         <td className="py-3 px-6 text-gray-600 font-medium w-[40%] border-r border-gray-200 text-sm relative">
                                             <Editable 
                                               initialValue={row.label}
-                                              onChange={(val) => onUpdateRow(section.id, rowIndex, 'label', val)}
+                                              onChange={(val) => onUpdateRow(section.id, rowIdx, 'label', val)}
                                             />
                                         </td>
                                         
@@ -110,7 +110,7 @@ export const PageTwo: React.FC<PageProps> = ({
                                         <td className="py-3 px-6 text-black font-mono font-semibold text-sm relative pr-10">
                                             <Editable 
                                               initialValue={row.value}
-                                              onChange={(val) => onUpdateRow(section.id, rowIndex, 'value', val)}
+                                              onChange={(val) => onUpdateRow(section.id, rowIdx, 'value', val)}
                                             />
                                             
                                             {/* Remove Row Button */}
