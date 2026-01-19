@@ -52,7 +52,15 @@ app.post('/generate-pdf', async (req, res) => {
     if (process.env.NODE_ENV === 'production') {
       // Production: Use chromium with optimized args for Render
       launchOptions = {
-        args: chromium.args,
+        args: [
+          ...chromium.args,
+          '--disable-dev-shm-usage',  // Overcome limited shared memory
+          '--disable-gpu',             // Disable GPU hardware acceleration
+          '--no-sandbox',              // Required for some environments
+          '--disable-setuid-sandbox',
+          '--single-process',          // Run in single process to save memory
+          '--no-zygote',               // Disable zygote process
+        ],
         defaultViewport: chromium.defaultViewport,
         executablePath: await chromium.executablePath(),
         headless: chromium.headless,
@@ -139,19 +147,22 @@ app.post('/generate-pdf', async (req, res) => {
       timeout: 60000 // Increase timeout to 60 seconds
     });
 
-    // Wait for images and fonts to load
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Wait for images and fonts to load (reduced to save memory)
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
-    // Generate PDF with high quality
+    // Generate PDF with optimized settings for memory
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
       preferCSSPageSize: false,
       margin: { top: 0, right: 0, bottom: 0, left: 0 },
-      displayHeaderFooter: false
+      displayHeaderFooter: false,
+      scale: 1
     });
 
+    // Close browser immediately to free memory
     await browser.close();
+    browser = null; // Allow garbage collection
     console.log('PDF generated successfully');
 
     // Send PDF

@@ -335,6 +335,39 @@ const App: React.FC = () => {
   };
 
   // --- PDF GENERATION - Server-side with Puppeteer ---
+  const compressBase64Image = async (base64: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Reduce dimensions if image is very large
+        let width = img.width;
+        let height = img.height;
+        const maxDimension = 1920;
+        
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = (height / width) * maxDimension;
+            width = maxDimension;
+          } else {
+            width = (width / height) * maxDimension;
+            height = maxDimension;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        // Compress to JPEG with 0.8 quality
+        resolve(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.src = base64;
+    });
+  };
+
   const handleDownloadPDF = async () => {
     const container = document.getElementById('datasheet-container');
     if (!container) return;
@@ -343,7 +376,22 @@ const App: React.FC = () => {
 
     try {
       // Get the HTML content
-      const html = container.innerHTML;
+      let html = container.innerHTML;
+      
+      // Compress all base64 images in HTML to reduce memory usage
+      const base64Regex = /src="(data:image\/[^;]+;base64,[^"]+)"/g;
+      const matches = [...html.matchAll(base64Regex)];
+      
+      console.log(`📦 Compressing ${matches.length} images for PDF...`);
+      
+      for (const match of matches) {
+        const original = match[1];
+        if (original.length > 50000) { // Only compress if larger than ~50KB
+          const compressed = await compressBase64Image(original);
+          html = html.replace(original, compressed);
+          console.log(`✅ Compressed image: ${(original.length / 1024).toFixed(0)}KB → ${(compressed.length / 1024).toFixed(0)}KB`);
+        }
+      }
     
       // Get CSS variables
       const brandColor = getCSSVariables()['--brand-color'];
